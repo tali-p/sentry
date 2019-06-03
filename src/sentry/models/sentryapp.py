@@ -32,7 +32,7 @@ EVENT_EXPANSION = {
     ],
     'error': [
         'error.created',
-    ]
+    ],
 }
 
 # We present Webhook Subscriptions per-resource (Issue, Project, etc.), not
@@ -45,6 +45,7 @@ VALID_EVENT_RESOURCES = (
 
 REQUIRED_EVENT_PERMISSIONS = {
     'issue': 'event:read',
+    'error': 'event:read',
     'project': 'project:read',
     'member': 'member:read',
     'organization': 'org:read',
