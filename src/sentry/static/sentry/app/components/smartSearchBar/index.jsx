@@ -775,7 +775,6 @@ class SmartSearchBar extends React.Component {
                 size="zero"
                 containerDisplayMode="inline-flex"
                 onClick={this.clearSearch}
-                isActive={!!pinnedSearch}
               >
                 <InlineSvg src="icon-close" size="11" />
               </CloseButton>
@@ -790,6 +789,7 @@ class SmartSearchBar extends React.Component {
               borderless
               aria-label={pinTooltip}
               size="zero"
+              collapse={true}
               containerDisplayMode="inline-flex"
               onClick={this.onTogglePinnedSearch}
               isActive={!!pinnedSearch}
@@ -800,13 +800,14 @@ class SmartSearchBar extends React.Component {
               title={t('Toggle search builder')}
               borderless
               size="zero"
+              collapse={true}
               containerDisplayMode="inline-flex"
               aria-label={t('Toggle search builder')}
               onClick={onSidebarToggle}
             >
               <InlineSvg src="icon-sliders" size={13} />
             </SearchBuilderButton>
-            <DropdownLink
+            <StyledDropdownLink
               anchorRight={true}
               caret={false}
               title={
@@ -815,9 +816,11 @@ class SmartSearchBar extends React.Component {
                 </div>
               }
             >
-              <DropdownElement onclick={onSidebarToggle}>Toggle sidebar</DropdownElement>
-              <DropdownElement last onclick={this.onTogglePinnedSearch}>Pin search</DropdownElement>
-            </DropdownLink>
+              <DropdownElement onClick={onSidebarToggle}>Toggle sidebar</DropdownElement>
+              <DropdownElement last onClick={this.onTogglePinnedSearch}>
+                {pinnedSearch ? 'Unpin search' : 'Pin search'}
+              </DropdownElement>
+            </StyledDropdownLink>
           </ButtonBar>
         </Container>
       );
@@ -967,6 +970,10 @@ const SidebarButton = styled(Button)`
   &:hover {
     color: ${p => p.theme.gray3};
   }
+
+  @media (max-width: ${p => p.theme.breakpoints[2]}) {
+    display: none;
+  }
 `;
 
 const SearchBuilderButton = styled(SidebarButton)`
@@ -979,9 +986,20 @@ const CloseButton = styled(SidebarButton)`
   margin-right: 6px;
 `;
 
-const DropdownElement = styled('div')`
-  padding: ${space(1)};
-  border-bottom: ${p => p.last ? null : `1px solid ${p => p.theme.gray1}`};
+const StyledDropdownLink = styled(DropdownLink)`
+  display: none;
+  margin-left: ${space(0.5)};
+
+  @media (max-width: ${p => p.theme.breakpoints[2]}) {
+    display: flex;
+  }
+`;
+
+const DropdownElement = styled('a')`
+  padding: 0 ${space(1)} ${p => p.last ? null : space(0.5)};
+  margin-bottom: ${p => p.last ? null : space(0.5)};
+  border-bottom: ${p => p.last ? null : `1px solid ${p.theme.gray1}`};
+  display: block;
 `;
 
 const EllipsisIcon = styled(InlineSvg)`
