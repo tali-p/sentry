@@ -97,6 +97,7 @@ class CreateSavedSearchButton extends React.Component {
             title={t('Add to organization filter list')}
             size="zero"
             borderless
+            containerDisplayMode="inline-flex"
             type="button"
             onClick={this.onToggle}
             data-test-id="save-current-search"

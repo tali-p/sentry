@@ -21,6 +21,7 @@ import {t} from 'app/locale';
 import Button from 'app/components/button';
 import CreateSavedSearchButton from 'app/views/stream/createSavedSearchButton';
 import InlineSvg from 'app/components/inlineSvg';
+import DropdownLink from 'app/components/dropdownLink';
 import MemberListStore from 'app/stores/memberListStore';
 import SentryTypes from 'app/sentryTypes';
 import space from 'app/styles/space';
@@ -772,6 +773,7 @@ class SmartSearchBar extends React.Component {
                 borderless
                 aria-label={'Clear search'}
                 size="zero"
+                containerDisplayMode="inline-flex"
                 onClick={this.clearSearch}
                 isActive={!!pinnedSearch}
               >
@@ -788,6 +790,7 @@ class SmartSearchBar extends React.Component {
               borderless
               aria-label={pinTooltip}
               size="zero"
+              containerDisplayMode="inline-flex"
               onClick={this.onTogglePinnedSearch}
               isActive={!!pinnedSearch}
             >
@@ -797,11 +800,24 @@ class SmartSearchBar extends React.Component {
               title={t('Toggle search builder')}
               borderless
               size="zero"
+              containerDisplayMode="inline-flex"
               aria-label={t('Toggle search builder')}
               onClick={onSidebarToggle}
             >
               <InlineSvg src="icon-sliders" size={13} />
             </SearchBuilderButton>
+            <DropdownLink
+              anchorRight={true}
+              caret={false}
+              title={
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                  <EllipsisIcon src="icon-ellipsis"/>
+                </div>
+              }
+            >
+              <DropdownElement onclick={onSidebarToggle}>Toggle sidebar</DropdownElement>
+              <DropdownElement last onclick={this.onTogglePinnedSearch}>Pin search</DropdownElement>
+            </DropdownLink>
           </ButtonBar>
         </Container>
       );
@@ -905,7 +921,6 @@ const Container = styled('div')`
 
 const ButtonBar = styled('div')`
   display: flex;
-  padding-top: ${space(0.5)};
   justify-content: flex-end;
   margin-right: ${space(1)};
   align-items: center;
@@ -960,10 +975,17 @@ const SearchBuilderButton = styled(SidebarButton)`
 `;
 
 const CloseButton = styled(SidebarButton)`
-  /* we can't propertly center this because of tooltip divs */
-  top: -1px;
   position: relative;
   margin-right: 6px;
+`;
+
+const DropdownElement = styled('div')`
+  padding: ${space(1)};
+  border-bottom: ${p => p.last ? null : `1px solid ${p => p.theme.gray1}`};
+`;
+
+const EllipsisIcon = styled(InlineSvg)`
+  color: ${p => p.theme.gray2};
 `;
 
 function getTitleForType(type) {
