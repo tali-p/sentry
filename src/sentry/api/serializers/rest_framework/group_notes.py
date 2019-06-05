@@ -22,11 +22,7 @@ def seperate_resolved_actors(actors):
     return {'users': users, 'teams': teams}
 
 
-class NoteSerializer(serializers.Serializer):
-    text = serializers.CharField()
-    mentions = ListField(child=ActorField(), required=False)
-    external_id = serializers.CharField(allow_none=True, required=False)
-
+class MentionsMixin(object):
     def validate_mentions(self, attrs, source):
         if source in attrs and 'group' in self.context:
 
@@ -57,3 +53,9 @@ class NoteSerializer(serializers.Serializer):
                     'Mentioned team not found or not associated with project')
 
         return attrs
+
+
+class NoteSerializer(serializers.Serializer, MentionsMixin):
+    text = serializers.CharField()
+    mentions = ListField(child=ActorField(), required=False)
+    external_id = serializers.CharField(allow_none=True, required=False)
