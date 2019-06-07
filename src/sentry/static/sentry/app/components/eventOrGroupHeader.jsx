@@ -38,10 +38,12 @@ class EventOrGroupHeader extends React.Component {
     hideIcons: PropTypes.bool,
     hideLevel: PropTypes.bool,
     query: PropTypes.string,
+    size: PropTypes.oneOf(['small', 'normal']),
   };
 
   static defaultProps = {
     includeLink: true,
+    size: 'normal',
   };
 
   getTitle() {
