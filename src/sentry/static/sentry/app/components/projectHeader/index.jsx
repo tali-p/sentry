@@ -55,22 +55,22 @@ class ProjectHeader extends React.Component {
             </div>
 
             <NavTabs>
-              <li className={navSection == 'stream' ? 'active' : ''}>
+              <li className={navSection === 'stream' ? 'active' : ''}>
                 <ProjectLink to={`/${org.slug}/${project.slug}/`}>
                   {t('Issues')}
                 </ProjectLink>
               </li>
-              <li className={navSection == 'dashboard' ? 'active' : ''}>
+              <li className={navSection === 'dashboard' ? 'active' : ''}>
                 <ProjectLink to={`/${org.slug}/${project.slug}/dashboard/`}>
                   {t('Overview')}
                 </ProjectLink>
               </li>
-              <li className={navSection == 'releases' ? 'active' : ''}>
+              <li className={navSection === 'releases' ? 'active' : ''}>
                 <ProjectLink to={`/${org.slug}/${project.slug}/releases/`}>
                   {t('Releases')}
                 </ProjectLink>
               </li>
-              <li className={navSection == 'settings' ? 'active' : ''}>
+              <li className={navSection === 'settings' ? 'active' : ''}>
                 <Link to={`/settings/${org.slug}/projects/${project.slug}/`}>
                   {t('Settings')}
                 </Link>
