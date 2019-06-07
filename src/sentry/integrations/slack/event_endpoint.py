@@ -3,35 +3,80 @@ from __future__ import absolute_import
 import json
 import re
 import six
+from collections import defaultdict
 
 from django.conf import settings
 
 from sentry import http
 from sentry.api.base import Endpoint
+from sentry.incidents.models import Incident
 from sentry.models import Group, Project
 
-from .utils import build_attachment, logger
 from .requests import SlackEventRequest, SlackRequestError
+from .utils import (
+    build_group_attachment,
+    build_incident_attachment,
+    logger,
+)
 
 # XXX(dcramer): this could be more tightly bound to our configured domain,
 # but slack limits what we can unfurl anyways so its probably safe
-_link_regexp = re.compile(r'^https?\://[^/]+/[^/]+/[^/]+/issues/(\d+)')
+_link_regexp = re.compile(r'^https?\://[^/]+/[^/]+/[^/]+/(issues|incidents)/(\d+)')
+
+
+def unfurl_issues(integration, issue_map):
+    results = {
+        g.id: g for g in Group.objects.filter(
+            id__in=set(issue_map.keys()),
+            project__in=Project.objects.filter(
+                organization__in=integration.organizations.all(),
+            )
+        )
+    }
+    if not results:
+        return {}
+
+    return {
+        v: build_group_attachment(results[k]) for k, v in six.iteritems(issue_map)
+        if k in results
+    }
+
+
+def unfurl_incidents(integration, incident_map):
+    results = {
+        i.id: i for i in Incident.objects.filter(
+            id__in=set(incident_map.keys()),
+            organization__in=integration.organizations.all(),
+        )
+    }
+    if not results:
+        return {}
+
+    return {
+        v: build_incident_attachment(results[k]) for k, v in six.iteritems(incident_map)
+        if k in results
+    }
 
 
 # XXX(dcramer): a lot of this is copied from sentry-plugins right now, and will
 # need refactored
 class SlackEventEndpoint(Endpoint):
+    event_handlers = {
+        'issues': unfurl_issues,
+        'incidents': unfurl_incidents,
+    }
+
     authentication_classes = ()
     permission_classes = ()
 
-    def _parse_issue_id_from_url(self, link):
+    def _parse_url(self, link):
         match = _link_regexp.match(link)
         if not match:
-            return
+            return None, None
         try:
-            return int(match.group(1))
+            return match.group(1), int(match.group(2))
         except (TypeError, ValueError):
-            return
+            return None, None
 
     def on_url_verification(self, request, data):
         return self.respond({
@@ -39,45 +84,33 @@ class SlackEventEndpoint(Endpoint):
         })
 
     def on_link_shared(self, request, integration, token, data):
-        issue_map = {}
+        parsed_events = defaultdict(dict)
         for item in data['links']:
-            issue_id = self._parse_issue_id_from_url(item['url'])
-            if not issue_id:
+            event_type, instance_id = self._parse_url(item['url'])
+            if not instance_id:
                 continue
-            issue_map[issue_id] = item['url']
+            parsed_events[event_type][instance_id] = item['url']
 
-        if not issue_map:
+        if not parsed_events:
             return
 
-        results = {
-            g.id: g for g in Group.objects.filter(
-                id__in=set(issue_map.keys()),
-                project__in=Project.objects.filter(
-                    organization__in=integration.organizations.all(),
-                )
-            )
-        }
+        results = {}
+        for event_type, instance_map in parsed_events.items():
+            results.update(self.event_handlers[event_type](integration, instance_map))
+
         if not results:
             return
 
         if settings.SLACK_INTEGRATION_USE_WST:
-            access_token = integration.metadata['access_token'],
+            access_token = integration.metadata['access_token']
         else:
-            access_token = integration.metadata['user_access_token'],
+            access_token = integration.metadata['user_access_token']
 
         payload = {
             'token': access_token,
             'channel': data['channel'],
             'ts': data['message_ts'],
-            'unfurls': json.dumps({
-                v: build_attachment(results[k])
-                for k, v in six.iteritems(issue_map)
-                if k in results
-            }),
-            # 'user_auth_required': False,
-            # 'user_auth_message': 'You can enable automatic unfurling of Sentry URLs by having a Sentry admin configure the Slack integration.',
-            # we dont have a generic URL that this will work for your
-            # 'user_auth_url': '...',
+            'unfurls': json.dumps(results),
         }
 
         session = http.build_session()
