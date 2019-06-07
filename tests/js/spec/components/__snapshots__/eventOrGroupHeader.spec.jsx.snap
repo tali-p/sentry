@@ -21,7 +21,6 @@ exports[`EventOrGroupHeader Event hides level tag 1`] = `
   }
   hideLevel={true}
   includeLink={true}
-  orgId="orgId"
   projectId="projectId"
 />
 `;
@@ -46,8 +45,11 @@ exports[`EventOrGroupHeader Event renders with \`type = csp\` 1`] = `
     }
   }
   includeLink={true}
-  orgId="orgId"
-  projectId="projectId"
+  params={
+    Object {
+      "orgId": "orgId",
+    }
+  }
 />
 `;
 
@@ -71,8 +73,11 @@ exports[`EventOrGroupHeader Event renders with \`type = default\` 1`] = `
     }
   }
   includeLink={true}
-  orgId="orgId"
-  projectId="projectId"
+  params={
+    Object {
+      "orgId": "orgId",
+    }
+  }
 />
 `;
 
@@ -96,8 +101,11 @@ exports[`EventOrGroupHeader Event renders with \`type = error\` 1`] = `
     }
   }
   includeLink={true}
-  orgId="orgId"
-  projectId="projectId"
+  params={
+    Object {
+      "orgId": "orgId",
+    }
+  }
 />
 `;
 
@@ -120,8 +128,11 @@ exports[`EventOrGroupHeader Group renders with \`type = csp\` 1`] = `
     }
   }
   includeLink={true}
-  orgId="orgId"
-  projectId="projectId"
+  params={
+    Object {
+      "orgId": "orgId",
+    }
+  }
 />
 `;
 
@@ -144,8 +155,11 @@ exports[`EventOrGroupHeader Group renders with \`type = default\` 1`] = `
     }
   }
   includeLink={true}
-  orgId="orgId"
-  projectId="projectId"
+  params={
+    Object {
+      "orgId": "orgId",
+    }
+  }
 />
 `;
 
@@ -169,6 +183,5 @@ exports[`EventOrGroupHeader Group renders with \`type = error\` 1`] = `
   }
   includeLink={true}
   orgId="orgId"
-  projectId="projectId"
 />
 `;
