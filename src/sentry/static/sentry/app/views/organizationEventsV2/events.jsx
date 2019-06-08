@@ -34,6 +34,8 @@ export default class Events extends AsyncComponent {
     zoomed: false,
   };
 
+  shouldReload = true;
+
   componentDidUpdate(prevProps, prevContext) {
     // Do not update if we are just opening/closing the modal
     const locationHasChanged = !isEqual(
